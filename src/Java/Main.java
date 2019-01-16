@@ -72,7 +72,7 @@ public class Main extends Application {
         tableNameList = new ListView<String>();
         tableNameList.setItems(tableNames);
         tableNameList.setOrientation(Orientation.VERTICAL);
-        tableNameList.setPrefHeight(70);
+        tableNameList.setPrefHeight(100);
         tableNameList.setPrefWidth(20);
 
         tableNameList.getSelectionModel().selectFirst();
