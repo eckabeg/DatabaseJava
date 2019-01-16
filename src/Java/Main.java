@@ -1,8 +1,12 @@
 package Java;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -11,6 +15,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import static javafx.scene.control.TableView.CONSTRAINED_RESIZE_POLICY;
+import static javafx.scene.control.TableView.UNCONSTRAINED_RESIZE_POLICY;
 
 public class Main extends Application {
 
@@ -22,27 +28,33 @@ public class Main extends Application {
     private HBox hInPut;
     private ScrollPane scrollPane;
 
-    private RadioButton bUpdate, bOutput, bInput, bDelete;
-
-    private Button btnStart, btnCancel;
-
+    private RadioButton rbUpdate, rbOutput, rbInput, rbDelete;
+    private Button btnExecute, btnCancel;
     private ToggleGroup buttonGroup;
 
     private Label inputLbl, tableLbl;
-
     private TextField inputField;
 
     private ListView<String> tableNameList;
+
+    private EventHandler eventBtnExecute;
 
     private ObservableList<String> tableNames = FXCollections.observableArrayList("Futter", "Gehege", "Tier", "Gattung", "Futterration", "Gehegebetreuung", "Tierpfleger");
 
     private TableView table;
 
+    private ColumnNames columnNames;
+
+    private String selectedTable;
+
+
     @Override
     public void start(Stage primaryStage) throws Exception {
 
+        columnNames = new ColumnNames();
+
         root = new BorderPane();
-        scene = new Scene(root, 550, 400);
+        scene = new Scene(root, 500, 400);
 
         bpRight = new BorderPane();
         bpButtons = new BorderPane();
@@ -53,13 +65,13 @@ public class Main extends Application {
 
         scrollPane = new ScrollPane();
 
-        bUpdate = new RadioButton();
-        bDelete = new RadioButton();
-        bInput = new RadioButton();
-        bOutput = new RadioButton();
+        rbUpdate = new RadioButton();
+        rbDelete = new RadioButton();
+        rbInput = new RadioButton();
+        rbOutput = new RadioButton();
 
         btnCancel = new Button();
-        btnStart = new Button();
+        btnExecute = new Button();
 
         buttonGroup = new ToggleGroup();
 
@@ -69,7 +81,7 @@ public class Main extends Application {
 
         table = new TableView();
 
-        tableNameList = new ListView<String>();
+        tableNameList = new ListView<>();
         tableNameList.setItems(tableNames);
         tableNameList.setOrientation(Orientation.VERTICAL);
         tableNameList.setPrefHeight(100);
@@ -79,24 +91,29 @@ public class Main extends Application {
 
         inputLbl.setText("Please Enter a Value: ");
 
-        bUpdate.setText("Update");
-        bDelete.setText("Delete");
-        bInput.setText("Input");
-        bOutput.setText("Output");
+        rbUpdate.setText("Update");
+        rbDelete.setText("Delete");
+        rbInput.setText("Input");
+        rbOutput.setText("Output");
 
         btnCancel.setText("Cancel");
-        btnStart.setText("OK");
+        btnExecute.setText("OK");
 
-        table.setEditable(true);
+        table.setEditable(false);
+        table.setColumnResizePolicy(UNCONSTRAINED_RESIZE_POLICY);
+
+        setSelectedTable();
+
+        table = columnNames.setColumn(selectedTable);
 
         scrollPane.setContent(table);
 
-        bUpdate.setToggleGroup(buttonGroup);
-        bInput.setToggleGroup(buttonGroup);
-        bOutput.setToggleGroup(buttonGroup);
-        bDelete.setToggleGroup(buttonGroup);
+        rbUpdate.setToggleGroup(buttonGroup);
+        rbInput.setToggleGroup(buttonGroup);
+        rbOutput.setToggleGroup(buttonGroup);
+        rbDelete.setToggleGroup(buttonGroup);
 
-        bOutput.setSelected(true);
+        rbOutput.setSelected(true);
 
         root.setRight(bpRight);
         root.setCenter(scrollPane);
@@ -106,22 +123,47 @@ public class Main extends Application {
         bpRight.setCenter(vButtons);
         bpRight.setBottom(hInPut);
 
-        vButtons.getChildren().add(bOutput);
-        vButtons.getChildren().add(bInput);
-        vButtons.getChildren().add(bUpdate);
-        vButtons.getChildren().add(bDelete);
+        vButtons.getChildren().add(rbOutput);
+        vButtons.getChildren().add(rbInput);
+        vButtons.getChildren().add(rbUpdate);
+        vButtons.getChildren().add(rbDelete);
 
         bpButtons.setLeft(btnCancel);
-        bpButtons.setRight(btnStart);
+        bpButtons.setRight(btnExecute);
 
         hInPut.getChildren().add(inputLbl);
         hInPut.getChildren().add(inputField);
+
+        eventBtnExecute = event -> btnExecute_EventPerformed(event);
+
+        btnExecute.setOnAction(eventBtnExecute);
+        btnCancel.setOnAction(event -> System.exit(0));
 
         primaryStage.setTitle("Database Zoo in Java");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
+    public void btnExecute_EventPerformed(Event evt){
+
+        String selectedOption = buttonGroup.getSelectedToggle().toString();
+
+        setSelectedTable();
+
+        table = columnNames.setColumn(selectedTable);
+
+    }
+
+    public void setSelectedTable(){
+
+        selectedTable = tableNameList.getSelectionModel().getSelectedItem();
+
+    }
+
+    public String getSelectedTable(){
+
+        return selectedTable;
+    }
 
     public static void main(String[] args) {
         launch(args);

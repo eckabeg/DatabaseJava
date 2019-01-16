@@ -1,12 +1,13 @@
 package Java;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class ConnectionToDb {
 
     private Connection con;
+    private Statement stmt;
+    private ResultSet rSet;
+
     private String user = "root";
     private String db = "zoo";
     private String url = "jdbc:mysql://localhost/" + db;
@@ -29,4 +30,21 @@ public class ConnectionToDb {
             System.out.println("Allgemeiner Fehler : " + e.getMessage());
         }
     }
+
+    public void setRset(String command) {
+
+        try {
+            stmt = con.createStatement();
+            rSet = stmt.executeQuery(command);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public ResultSet getRset(){
+
+        return rSet;
+    }
+
 }
